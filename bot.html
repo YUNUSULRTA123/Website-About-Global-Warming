@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  body {
+    background-color: #000000;
+    color: #e0e0e0;
+    font-family: Arial, sans-serif;
+  }
+
+  form {
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 15px;
+    background: #000000;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.7);
+    display: flex;
+    gap: 10px;
+  }
+
+  input[type="text"] {
+    flex-grow: 1;
+    padding: 10px 12px;
+    border: 1px solid #555;
+    border-radius: 6px;
+    font-size: 1rem;
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+    transition: border-color 0.3s ease;
+  }
+
+  input[type="text"]::placeholder {
+    color: #888;
+  }
+
+  input[type="text"]:focus {
+    border-color: #3399ff;
+    outline: none;
+    background-color: #3a3a3a;
+  }
+
+  button {
+    padding: 10px 16px;
+    background-color: #3399ff;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  button:hover {
+    background-color: #1c7ed6;
+  }
+
+  div {
+    max-width: 400px;
+    margin: 15px auto;
+    background: #000000;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.7);
+  }
+
+  div h3 {
+    margin-top: 0;
+    color: #3399ff;
+  }
+
+  div p {
+    font-size: 1.1rem;
+    color: #ccc;
+  }
+</style>
+
+<form method="POST">
+    <input type="text" name="question" placeholder="Задайте вопрос о глобальном потеплении" required>
+    <button type="submit">Спросить</button>
+</form>
+{% if answer %}
+    <div>
+        <h3>Ответ:</h3>
+        <p>{{ answer }}</p>
+    </div>
+{% endif %}
+{% endblock %} 
