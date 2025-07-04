@@ -1,0 +1,18 @@
+<!-- templates/search.html -->
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Результаты поиска по запросу: "{{ query }}"</h2>
+
+  {% if results %}
+    <ul>
+      {% for entry in results %}
+        <li>
+          <strong>{{ entry.title }}</strong>: {{ entry.content[:100] }}...
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Ничего не найдено.</p>
+  {% endif %}
+{% endblock %}
