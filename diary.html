@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Экологический дневник</h2>
+<form method="post">
+    <input type="text" name="title" placeholder="Заголовок заметки" required><br><br>
+    <textarea name="content" rows="5" placeholder="Текст заметки" required></textarea><br>
+    <button type="submit">Добавить заметку</button>
+</form>
+
+<hr>
+
+{% if notes %}
+    <p>Количество заметок: {{ notes|length }}</p>
+    {% for note in notes %}
+        <article class="note">
+            <p>{{ note.content }}</p>
+        </article>
+    {% endfor %}
+{% else %}
+    <p>Заметок пока нет.</p>
+{% endif %}
+{% endblock %}
