@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Чат пользователей</h2>
+
+    <div class="chat-box border rounded p-3 mb-3" style="height: 400px; overflow-y: scroll; background-color: #f9f9f9;">
+        {% for msg in messages %}
+            <div>
+                <strong>{{ msg.user.username }}</strong>
+                <small class="text-muted">({{ msg.timestamp.strftime('%d.%m.%Y %H:%M') }})</small><br>
+                {{ msg.content }}
+                <hr>
+            </div>
+        {% endfor %}
+    </div>
+
+    <form method="POST">
+        <div class="input-group">
+            <input type="text" name="content" class="form-control" placeholder="Введите сообщение..." required>
+            <button class="btn btn-primary" type="submit">Отправить</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
