@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Свежие новости об изменении климата</h1>
+<ul>
+    {% for item in news %}
+        <li>
+            <a href="{{ item.link or item.url }}" target="_blank">{{ item.title }}</a>
+            {% if item.content %}
+                <p>{{ item.content }}</p>
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
+
+<h2>Похожие материалы</h2>
+<img src="https://lh3.googleusercontent.com/fife/ALs6j_E1NP6m2zOZC7lO_sys_84E3DIqOQ5vIIz9uED9PzeqJjMn-DOlS_HCbUi3ZWQhP3pFt5_rsyPtGmDCG3Op46LsI4-9Rv4LrEPrcEDmjB4OhwXRihYDYYizemqegrzVIvYCTiAxS9TWl3TkFVq14xgp7F6vBSyTaz18Xs8Sa_v0FLPIGi0EdCC85eZ2PvlrvAYh8KeF5tdLrY4cIKaOfuECMtvUpF_jRAccOi3z8MZSLcyRSitbBJzuZSW1x_T0Y97vCt56j15WNsnqvqS_8vtBJZrIHA4euhWBhR8CR2Lfryhct5dcJzDaLMpjlVpmC9xUwGGnhTiC0bpr-eIMS60JzbucPzz3GQL4D8RDdiy7zabah2t7A_wMw1Ze2d7lD7SkKCQFhAm6FTT6lak0fjfBYR8_53oCGHiqgbLp0WcJHH9bUdICWpYUXu5I6wdeN9wrDGQNYDSfdrJE-ZHZ0QDWvmATBfXwXl2P58MdCVuYEFUN8Z1spS44B2AYcHX4bf-S5Xr1n1POqODe3fh69MRFHkpfr2GYiUC4qfxnaYs1jKu2fjJwZ2VIW7KJKG8z3dwUbqpYSagr1_2nhgtrZYaEBa80hOZuV6-LL_eTdHv8x8Wa4MnkUUVIHhBSaQj-i4HB1PBaeWYYfVjwyFqXep-v0fLDDWJV3z16cdpe3FrM-B3yRdNQrygy_lrbXv-pjbVDJ3YHsE4tvHjHfg6ChKkcmnUxxyHJFkU-vzptR_Bt2kSX_vIb_APYuFMvmJ5uaI0cJLy8IqH5h-uPqbuXgUtBFhZSvL6eas47F_nDwCjHXmJO_1yi2VrcVXAwkQ0HHhQ00hrSzfVXcddYyV5JKTz9bFY-R37c4w28G4LUCboPIPTGRGymtlKyzTEVg5efUo6Z_-3IYkSDUVL8_ICvTJ9EEGRGkwWGux-lKOMJyB_bI4QGSQuFwCQrDsaMmENMdkR0KeQJHBmw7pIm4TYl39mWKwP35Plq11giIOj-RISEwripoxKfnVSGnOZPsa-V9PSQOJUHt312xNSkFfFUmmJGt-0Bn6lioFgJs-CfH_6TAi9Enus4lnTi5d4dNgcUfev2fmeZslp8d6BpBnd96MZMkr6no5sOOfEfLNL2OtsZJAz7oI-7bd1oIUwtZ0LIVIXY7EGsG_yuB-gvNe9X4lCxqKHznBc9z6PUjVEu5lbkDzZLPRTaBI8EfRlhMl2J1_qtscEdSizZsOTLPqCkCqZ_xriAPntLSu3at33kd9ByfWZFhdcPib69g-2KhElTBPlTSujdfbEsS6j3iNHGsA5kDX1aGxqg3pTztNuTNMsPe23rv-V9uEQjyVJTxH8LpcXkVPVNTu5gsRDErDqwY38Ww7OxwtHAuQLx2rwNrp-Kmbsqdb4iDA=s1024" alt="Фото природы" width="300" height="200">
+<ul>
+    {% for link in related_links %}
+        <li><a href="{{ link.link }}" target="_blank">{{ link.title }}</a></li>
+    {% endfor %}
+</ul>
+{% endblock %}
