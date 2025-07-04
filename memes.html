@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Мемы и инфографика</h2>
+
+<!-- Вывод сообщений -->
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul>
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<!-- Форма для добавления нового мема -->
+<form method="post" enctype="multipart/form-data">
+    <label for="file-upload" style="
+        display: inline-block;
+        padding: 8px 15px;
+        background-color: #4CAF50;
+        color: white;
+        cursor: pointer;
+        border-radius: 4px;
+        font-weight: 600;
+        transition: background-color 0.3s ease;">
+        Выбрать файл
+    </label>
+    <input id="file-upload" type="file" name="file" accept="image/*" required style="display:none;" />
+    <br />
+    <label>Описание:</label>
+    <input type="text" name="description" required />
+    <br />
+    <button type="submit">Добавить мем</button>
+</form>
+
+<hr />
+
+<!-- Отображение мемов -->
+<div class="memes-container">
+    {% for meme in memes %}
+    <div class="meme" style="margin-bottom:20px;">
+        <img src="{{ url_for('static', filename='memes/' ~ meme.filename) }}" alt="{{ meme.description }}" style="max-width: 300px;" />
+        <p>{{ meme.description }}</p>
+        <form action="{{ url_for('delete_meme', filename=meme.filename) }}" method="post" style="display:inline;">
+            <button type="submit" onclick="return confirm('Удалить мем?');">Удалить</button>
+        </form>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
