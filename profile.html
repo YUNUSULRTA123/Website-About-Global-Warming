@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Профиль пользователя: {{ user.username }}</h2>
+<img src="{{ url_for('static', filename=user.avatar or 'images/default.png') }}" width="150">
+<p><strong>Биография:</strong> {{ user.bio or 'Не указана' }}</p>
+<p><strong>Дата регистрации:</strong>
+  {% if user.registered_on %}
+    {{ user.registered_on.strftime('%d.%m.%Y') }}
+  {% else %}
+    Не указана
+  {% endif %}
+</p>
+<a href="{{ url_for('edit_profile') }}">Редактировать профиль</a>
+{% endblock %}
