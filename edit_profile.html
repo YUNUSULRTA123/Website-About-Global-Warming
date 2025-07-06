@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Редактировать профиль</h2>
+<form method="POST" enctype="multipart/form-data">
+    <label for="bio">Биография:</label><br>
+    <textarea name="bio" rows="5" cols="40">{{ user.bio }}</textarea><br><br>
+
+    <label for="avatar">Аватар (изображение):</label>
+    <input type="file" name="avatar"><br><br>
+
+    <button type="submit">Сохранить</button>
+</form>
+{% endblock %}
