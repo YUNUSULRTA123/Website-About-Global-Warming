@@ -3,13 +3,16 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user, UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
+from sqlalchemy import or_, and_
 from flask_whooshee import Whooshee
 from dotenv import load_dotenv
+from flask_migrate import Migrate
 from datetime import datetime
 from bs4 import BeautifulSoup
 import requests
 import random
 import os
+import re
 
 load_dotenv()
 
@@ -21,12 +24,14 @@ app = Flask(__name__)
 whooshee = Whooshee()
 whooshee.init_app(app)
 
-app.config['SECRET_KEY'] = 'мой код скрыт'
+app.config['SECRET_KEY'] = '64ed2a434a7b07d3ced2c8b1496b2b2a3a1776b03118f532adfd88cf83ff3e10'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///global_warming.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 db = SQLAlchemy(app)
+
+migrate = Migrate(app, db)
 
 login_manager = LoginManager()
 login_manager.login_view = 'login'
@@ -37,6 +42,10 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     password_hash = db.Column(db.String(150), nullable=False)
+
+    avatar = db.Column(db.String(255), default='default.png')  # путь к аватарке
+    bio = db.Column(db.Text, default='')
+    registered_on = db.Column(db.DateTime, default=datetime.utcnow)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -54,7 +63,7 @@ class Note(db.Model):
 @whooshee.register_model('title', 'content')
 class DiaryEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String)
+    title = db.Column(db.String(255))
     content = db.Column(db.Text)
 
 class Meme(db.Model):
@@ -286,14 +295,19 @@ def index():
     except Exception as e:
         return f'Ошибка загрузки новостей: {e}', 500
 
+def clean_query(query):
+    return re.sub(r'[^\w\s]', '', query.lower()).strip()
+
 @app.route('/search')
 def search():
-    query = request.args.get('q')
-    if query:
-        results = DiaryEntry.query.whooshee_search(query).all()
-    else:
-        results = []
-    return render_template('search_results.html', results=results, query=query)
+    search_query = request.args.get('q', '').strip()
+    results = []
+
+    if not search_query:
+        return render_template('search_results.html', results=[], query='')
+    
+    return render_template('search_results.html', results=results, query=search_query)
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -329,6 +343,42 @@ def logout():
     logout_user()
     flash('Вы вышли из системы.')
     return redirect(url_for('index'))
+
+@app.route('/profile')
+@login_required
+def profile():
+    return render_template('profile.html', user=current_user)
+
+@app.route('/profile/edit', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    if request.method == 'POST':
+        bio = request.form.get('bio')
+        avatar_file = request.files.get('avatar')
+
+        if bio:
+            current_user.bio = bio
+
+        if avatar_file and allowed_file(avatar_file.filename):
+            filename = secure_filename(avatar_file.filename)
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            
+            i = 1
+            base, ext = os.path.splitext(filename)
+            while os.path.exists(filepath):
+                filename = f"{base}_{i}{ext}"
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                i += 1
+
+            avatar_file.save(filepath)
+            current_user.avatar = filename
+
+        db.session.commit()
+        flash('Профиль обновлён')
+        return redirect(url_for('profile'))
+
+    return render_template('edit_profile.html', user=current_user)
+
 
 @app.route('/diary', methods=['GET', 'POST'])
 @login_required
