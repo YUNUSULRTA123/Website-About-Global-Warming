@@ -30,7 +30,7 @@ whooshee.init_app(app)
 
 logging.basicConfig(level=logging.INFO)
 
-app.config['SECRET_KEY'] = '64ed2a434a7b07d3ced2c8b1496b2b2a3a1776b03118f532adfd88cf83ff3e10'
+app.config['SECRET_KEY'] = 'код скрыт'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///global_warming.db'
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
