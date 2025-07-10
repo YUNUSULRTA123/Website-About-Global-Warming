@@ -1,9 +1,22 @@
+/* Анимации */
+@keyframes fade-in {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
 body {
     font-family: Arial, sans-serif;
-    background: #000000;
-    color: #333;
+    background: #000;
+    color: #f0f0f0;
     margin: 0;
     padding: 0 20px;
+    scroll-behavior: smooth;
+    animation: fade-in 1s ease-in-out;
 }
 
 header {
@@ -11,30 +24,19 @@ header {
     color: white;
     padding: 20px 0;
     text-align: center;
-}
-
-nav a {
-    color: #ecf0f1;
-    margin: 0 15px;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-nav a:hover {
-    text-decoration: underline;
-}
-
-h1, h2, h3, h4 {
-    font-weight: normal;
+    box-shadow: 0 4px 10px rgba(0, 128, 255, 0.3);
+    animation: slide-in 1s ease-in-out;
 }
 
 main {
     max-width: 900px;
     margin: 20px auto;
-    background: rgb(255, 255, 255);
+    background: #fff;
+    color: #333;
     padding: 20px;
-    box-shadow: 0 0 8px rgb(0, 255, 255);
     border-radius: 8px;
+    box-shadow: 0 0 8px rgb(0, 255, 255);
+    animation: fade-in 1.2s ease-in-out;
 }
 
 form input[type="text"],
@@ -47,6 +49,14 @@ form textarea {
     border-radius: 4px;
     box-sizing: border-box;
     font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+form input:focus,
+form textarea:focus {
+    border-color: #0080ff;
+    box-shadow: 0 0 6px rgba(0, 128, 255, 0.5);
+    outline: none;
 }
 
 form button {
@@ -57,19 +67,38 @@ form button {
     border-radius: 4px;
     cursor: pointer;
     font-size: 1rem;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
 form button:hover {
     background-color: #219150;
+    transform: scale(1.05);
+}
+
+/* Сообщения */
+.note, .flash {
+    animation: fade-in 0.8s ease-in-out;
 }
 
 .note {
     background-color: #e8f5e9;
+    color: #333;
     padding: 15px;
     margin-bottom: 15px;
     border-left: 5px solid #27ae60;
+    border-radius: 4px;
 }
 
+.flash {
+    background-color: #ffdddd;
+    border-left: 6px solid #f44336;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    color: #333;
+}
+
+/* Мемы */
 .memes-container {
     display: flex;
     flex-wrap: wrap;
@@ -85,6 +114,13 @@ form button:hover {
     max-width: 320px;
     text-align: center;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: fade-in 1s ease-in-out;
+}
+
+.meme:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 
 .meme img {
@@ -92,6 +128,49 @@ form button:hover {
     border-radius: 4px;
 }
 
+/* Навигация */
+nav a {
+    color: #ecf0f1;
+    margin: 0 15px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+nav a:hover {
+    text-decoration: underline;
+    color: #ffffff;
+}
+
+/* Поиск */
+.search-form input[type="text"] {
+    width: 200px;
+    padding: 5px 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.search-form {
+    margin-top: 20px;
+}
+
+/* Соцсети */
+.social-icons a {
+    color: white;
+    margin: 0 15px;
+    font-size: 40px;
+    text-decoration: none;
+    transition: color 0.3s, transform 0.3s;
+}
+
+.social-icons a:hover {
+    color: #1abc9c;
+    transform: scale(1.1);
+}
+
+/* Футер */
 footer {
     text-align: center;
     padding: 15px 0;
@@ -99,32 +178,21 @@ footer {
     font-size: 0.9rem;
     margin-top: 40px;
     border-top: 1px solid #ddd;
+    animation: fade-in 1s ease-in-out;
 }
 
-.search-form input[type="text"] {
-    width: 200px; /* желаемая ширина */
-    padding: 5px 10px;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
+/* Адаптив */
+@media (max-width: 600px) {
+    .meme {
+        max-width: 100%;
+    }
 
-.search-form {
-    margin-top: 20px;
-}
+    .search-form input[type="text"] {
+        width: 100%;
+    }
 
-
-.social-icons a {
-  color: white;
-  margin: 0 15px;
-  font-size: 40px; /* увеличенный размер */
-  text-decoration: none;
-  transition: color 0.3s;
-}
-
-.flash {
-    background-color: #ffdddd;
-    border-left: 6px solid #f44336;
-    padding: 10px 15px;
-    margin-bottom: 20px;
+    nav a {
+        display: block;
+        margin: 10px 0;
+    }
 }
