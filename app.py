@@ -4,12 +4,14 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from sqlalchemy import or_, and_
+from flask_wtf import CSRFProtect
 from flask_whooshee import Whooshee
 from dotenv import load_dotenv
 from flask_migrate import Migrate
 from datetime import datetime
 from bs4 import BeautifulSoup
 import requests
+import logging
 import random
 import os
 import re
@@ -18,14 +20,19 @@ load_dotenv()
 
 UPLOAD_FOLDER = 'static'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+MAX_CONTENT_LENGTH = 2 * 1024 * 1024  
 
 app = Flask(__name__)
+csrf = CSRFProtect(app)
 
 whooshee = Whooshee()
 whooshee.init_app(app)
 
+logging.basicConfig(level=logging.INFO)
+
 app.config['SECRET_KEY'] = '64ed2a434a7b07d3ced2c8b1496b2b2a3a1776b03118f532adfd88cf83ff3e10'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///global_warming.db'
+app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -298,6 +305,7 @@ def index():
 def clean_query(query):
     return re.sub(r'[^\w\s]', '', query.lower()).strip()
 
+
 @app.route('/search')
 def search():
     search_query = request.args.get('q', '').strip()
@@ -305,15 +313,48 @@ def search():
 
     if not search_query:
         return render_template('search_results.html', results=[], query='')
-    
+
+    # Поиск по дневнику
+    diary_results = DiaryEntry.query.filter(
+        or_(
+            DiaryEntry.title.ilike(f'%{search_query}%'),
+            DiaryEntry.content.ilike(f'%{search_query}%')
+        )
+    ).all()
+
+    # Поиск по мемам
+    meme_results = Meme.query.filter(
+        or_(
+            Meme.description.ilike(f'%{search_query}%'),
+            Meme.filename.ilike(f'%{search_query}%')
+        )
+    ).all()
+
+    # Формируем общий список результатов
+    for entry in diary_results:
+        results.append({
+            'type': 'diary',
+            'title': entry.title,
+            'content': entry.content
+        })
+    for meme in meme_results:
+        results.append({
+            'type': 'meme',
+            'filename': meme.filename,
+            'description': meme.description
+        })
+
     return render_template('search_results.html', results=results, query=search_query)
 
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form['username']
+        username = request.form['username'].strip()
         password = request.form['password']
+        if not username or not password or len(username) < 3 or len(password) < 6:
+            flash('Имя пользователя и пароль должны быть не короче 3 и 6 символов соответственно.')
+            return redirect(url_for('register'))
         if User.query.filter_by(username=username).first():
             flash('Пользователь с таким именем уже существует.')
             return redirect(url_for('register'))
@@ -421,8 +462,14 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+
 @app.route('/memes', methods=['GET', 'POST'])
 def memes_page():
+
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    memes_paginated = Meme.query.paginate(page=page, per_page=per_page, error_out=False)
+    
     if request.method == 'POST':
         file = request.files.get('file')
         description = request.form.get('description')
@@ -436,30 +483,34 @@ def memes_page():
             return redirect(url_for('memes_page'))
 
         if file and allowed_file(file.filename):
-            filename = file.filename
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-
-            i = 1
-            base, ext = os.path.splitext(filename)
-            while os.path.exists(filepath):
-                filename = f"{base}_{i}{ext}"
+            try:
+                filename = secure_filename(file.filename)
                 filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                i += 1
 
-            file.save(filepath)
-            meme = Meme(filename=filename, description=description)
-            db.session.add(meme)
-            db.session.commit()
-            flash('Мем добавлен успешно!')
+                i = 1
+                base, ext = os.path.splitext(filename)
+                while os.path.exists(filepath):
+                    filename = f"{base}_{i}{ext}"
+                    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    i += 1
+
+                file.save(filepath)
+                meme = Meme(filename=filename, description=description)
+                db.session.add(meme)
+                db.session.commit()
+                flash('Мем добавлен успешно!')
+            except Exception as e:
+                flash(f'Ошибка загрузки файла: {e}')
             return redirect(url_for('memes_page'))
         else:
             flash('Недопустимый формат файла')
             return redirect(url_for('memes_page'))
 
     memes = Meme.query.all()
-    return render_template('memes.html', memes=memes)
+    return render_template('memes.html', memes=memes_paginated.items, pagination=memes_paginated)
 
 @app.route('/memes/delete/<filename>', methods=['POST'])
+@login_required
 def delete_meme(filename):
     meme_to_delete = Meme.query.filter_by(filename=filename).first()
     if meme_to_delete:
@@ -545,6 +596,11 @@ def bot():
             answer = 'Извините, я пока не знаю ответа на этот вопрос. Попробуйте задать вопрос другими словами.'
 
     return render_template('bot.html', answer=answer)
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    logging.error(f"Ошибка: {e}")
+    return "Внутренняя ошибка сервера", 500
 
 if __name__ == '__main__':
     with app.app_context():
