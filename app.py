@@ -4,7 +4,6 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from sqlalchemy import or_, and_
-from flask_wtf import CSRFProtect
 from flask_whooshee import Whooshee
 from dotenv import load_dotenv
 from flask_migrate import Migrate
@@ -23,14 +22,13 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 MAX_CONTENT_LENGTH = 2 * 1024 * 1024  
 
 app = Flask(__name__)
-csrf = CSRFProtect(app)
 
 whooshee = Whooshee()
 whooshee.init_app(app)
 
 logging.basicConfig(level=logging.INFO)
 
-app.config['SECRET_KEY'] = 'код скрыт'
+app.config['SECRET_KEY'] = '64ed2a434a7b07d3ced2c8b1496b2b2a3a1776b03118f532adfd88cf83ff3e10'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///global_warming.db'
 app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
